@@ -200,7 +200,7 @@ class AwsS3Adapter extends AbstractAdapter implements CanOverwriteFiles
             $prefix = $this->applyPathPrefix($dirname) . '/';
             $this->s3Client->deleteMatchingObjects($this->bucket, $prefix);
         } catch (DeleteMultipleObjectsException $exception) {
-            return false;
+            throw $exception;
         }
 
         return true;
@@ -426,7 +426,7 @@ class AwsS3Adapter extends AbstractAdapter implements CanOverwriteFiles
                 $this->options
             );
         } catch (S3Exception $e) {
-            return false;
+            throw $e;
         }
 
         return true;
@@ -475,7 +475,7 @@ class AwsS3Adapter extends AbstractAdapter implements CanOverwriteFiles
             /** @var Result $response */
             $response = $this->s3Client->execute($command);
         } catch (S3Exception $e) {
-            return false;
+            throw $e;
         }
 
         return $this->normalizeResponse($response->toArray(), $path);
@@ -503,7 +503,7 @@ class AwsS3Adapter extends AbstractAdapter implements CanOverwriteFiles
         try {
             $this->s3Client->execute($command);
         } catch (S3Exception $exception) {
-            return false;
+            throw $exception;
         }
 
         return compact('path', 'visibility');
@@ -605,7 +605,7 @@ class AwsS3Adapter extends AbstractAdapter implements CanOverwriteFiles
         try {
             $this->s3Client->upload($this->bucket, $key, $body, $acl, ['params' => $options]);
         } catch (S3MultipartUploadException $multipartUploadException) {
-            return false;
+            throw $multipartUploadException;
         }
 
         return $this->normalizeResponse($options, $path);
